@@ -1,26 +1,103 @@
 package server;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.html.HtmlParser;
+import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.TextField;
+
+
 public class Main {
 	
-    public static void main(String[] args) throws IOException, ParseException {
+	public static final String indexPath = "index";
+	
+    public static void main(String[] args) throws Exception {
+    	
+        // 0. Specify the analyzer for tokenizing text.
+        //    The same analyzer should be used for indexing and searching
+        StandardAnalyzer analyzer = new StandardAnalyzer();
+
+		File indexDir = new File(indexPath);
+		File docs = new File("Data");
+		
+		Directory directory = FSDirectory.open(Paths.get(indexPath));
+		IndexWriterConfig conf = new IndexWriterConfig(analyzer);
+		IndexWriter writer = new IndexWriter(directory, conf);
+		writer.deleteAll();
+        
+		for (File file : docs.listFiles()) {
+			Metadata metadata = new Metadata();
+			ContentHandler handler = new BodyContentHandler();
+			ParseContext context = new ParseContext();
+			Parser parser = new AutoDetectParser();
+		
+			ParseContext pcontext = new ParseContext();
+			FileInputStream inputstream = new FileInputStream(file);
+		      //Html parser 
+		    HtmlParser htmlparser = new HtmlParser();
+		    htmlparser.parse(inputstream, handler, metadata,pcontext);
+		    System.out.println("Contents of the document:" + handler.toString());
+		    System.out.println("Metadata of the document:");
+		    String[] metadataNames = metadata.names();
+		      
+		    for(String name : metadataNames) {
+		         System.out.println(name + ":   " + metadata.get(name));  
+		    }
+		      
+			try {
+				parser.parse(inputstream, handler, metadata, context);
+			}
+			catch (TikaException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			}
+			finally {
+				inputstream.close();
+			}
+			String text = handler.toString();
+			String fileName = file.getName();		
+			
+			Document doc = new Document();
+			doc.add(new TextField("file", fileName, Field.Store.YES));
+			
+			
+			/*
+			for (String key : metadata.names()) {
+				String name = key.toLowerCase();
+				String value = metadata.get(key);
+				System.out.println("Name " + name + "Value " + value);
+				
+			}*/
+			
+		}
+		
+		writer.commit();
+		writer.deleteUnusedFiles();
+		
+		System.out.println(writer.maxDoc() + " documents written");
+		
+		
+		/*
         // 0. Specify the analyzer for tokenizing text.
         //    The same analyzer should be used for indexing and searching
         StandardAnalyzer analyzer = new StandardAnalyzer();
@@ -62,15 +139,9 @@ public class Main {
         // reader can only be closed when there
         // is no need to access the documents any more.
         reader.close();
+        */
     }
 
-    private static void addDoc(IndexWriter w, String title, String isbn) throws IOException {
-        Document doc = new Document();
-        doc.add(new TextField("title", title, Field.Store.YES));
 
-        // use a string field for isbn because we don't want it tokenized
-        doc.add(new StringField("isbn", isbn, Field.Store.YES));
-        w.addDocument(doc);
-    }
 
 }
