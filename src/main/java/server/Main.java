@@ -75,7 +75,13 @@ public class Main {
     	//Retrieve a query from the user
 		Term t = new Term("file", "java");
 		Query query = new TermQuery(t);
+		
+		//Query based on file
         Query q = new QueryParser("file", indexFile.analyzer).parse("CACM-0001.html");
+        //Query bassed on context of text
+        Query q2 = new QueryParser("text", indexFile.analyzer).parse("CACM-0001.html");
+        
+        
         BooleanClause[] clauses;
         
  
@@ -84,7 +90,7 @@ public class Main {
         int hitsPerPage = 10;
         IndexReader reader = DirectoryReader.open(indexFile.directory);
         IndexSearcher searcher = new IndexSearcher(reader);
-        TopDocs docs = searcher.search(q, hitsPerPage);
+        TopDocs docs = searcher.search(q2, hitsPerPage);
         ScoreDoc[] hits = docs.scoreDocs;
 
         // 4. display results
