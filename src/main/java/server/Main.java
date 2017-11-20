@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,7 @@ public class Main {
 		
 		
 		BooleanQuery bq = createBooleanQuery(indexFile,query);
-
+		
 		 
         // 3. search
         int hitsPerPage = 10;
@@ -74,7 +75,6 @@ public class Main {
 
         // 4. display results
         
-     //   System.out.println("Found " + hits.length + " hits.");
         for(int i=0;i<hits.length;++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
@@ -88,61 +88,149 @@ public class Main {
 	}
 	
 	
-	static BooleanQuery createBooleanQuery(Index indexFile,String query) {
-		
-		 List<String> elements = new ArrayList<String>();
-		 //Extract the elements between brackets
+	//Retrieve the terms between bracekts
+	void splitBrackets(String query,List<String> elements) {
 		 Matcher m = Pattern.compile("\\((.*?)\\)").matcher(query);
 
 		 while(m.find()) {
-			 
 			 //Filter the '(' symbols
 			 String word = m.group(1);
 			 if(word.charAt(0) == '(') {
 				 word = word.substring(1);
-			 }
-			 
-			 
+			 }	 		 
 			 elements.add(word);
 		 }
-		 
-		 System.out.println(elements);
-		 
-		
-		 
-		 
-		//Split the elements into tokens
+	}
 	
-		 
-		String[] splitQuery = elements.get(0).split("\\^");
-		for (String token : splitQuery) {
-				
-			    // Test NOT condition of token
-		        if (!"".equals(token)) {
-		        	if(token.charAt(0) == '!'){
-		        		//Remove the ! symbol
-		        		token = token.substring(1);
-		        		System.out.println("NOT");
-		        		System.out.print(token);
-		        	}else {
-		        		System.out.print(token);
-		        	}
-		        	System.out.println("\n");
-		        }
+  public static List<String> tokenizeString(Analyzer analyzer, String string) {
+	    List<String> result = new ArrayList<String>();
+	    try {
+	      TokenStream stream  = analyzer.tokenStream(null, new StringReader(string));
+	      stream.reset();
+	      while (stream.incrementToken()) {
+	        result.add(stream.getAttribute(CharTermAttribute.class).toString());
+	      }
+	    } catch (IOException e) {
+	      // not thrown b/c we're using a string reader...
+	      throw new RuntimeException(e);
+	    }
+	    return result;
+	  }
+	  
+  
+  static BooleanQuery createTermQuery(List<String> termElements) {
+  		BooleanQuery query = new BooleanQuery.Builder().build();
+  		for(String token :termElements) {
+	      	 BooleanClause b = new BooleanClause(new TermQuery(new Term("text", token)),
+                       BooleanClause.Occur.MUST);
+	      	query.clauses().add(b);
 		 }
-		
+  		 return query;	
+  	}
+
 	
-	 	BooleanClause b = new BooleanClause(
-                new TermQuery(new Term("text", "abcd")),
+	static BooleanQuery createBooleanQuery(Index indexFile,String query) {
+		
+		 
+		 //Extract the elements between brackets
+		 String[] terms = query.split(" ");
+		 
+		 List<String> termElements = new ArrayList<String>();
+		 List<String> operatorElements = new ArrayList<String>();
+		 
+		 
+		 
+		 //Filter terms and boolean expressions
+		 for(String token : terms) {
+			char currentChar = token.charAt(0);
+			 
+			switch(currentChar) {
+			case '*' :
+					operatorElements.add(token);
+					break;
+			case '+' :
+					operatorElements.add(token);
+					break;
+			case '!' :
+					termElements.add(token);
+					break;
+			default:termElements.add(token); 
+					break;
+						
+			}
+		 }
+		 
+		 operatorElements.add("");
+		 BooleanQuery b = createTermQuery(termElements);
+		 BooleanQuery bq = new BooleanQuery.Builder().build();
+		 bq.clauses().add(new BooleanClause(b, BooleanClause.Occur.MUST));
+		 
+	
+		 /*
+		 int i = 0;
+		 String current = operatorElements.get(0);
+		 String previous = operatorElements.get(0);
+		 
+		 BooleanQuery orQuery = new BooleanQuery.Builder().build();
+		 BooleanQuery tempQuery = new BooleanQuery.Builder().build();
+		 System.out.println(query);
+		 for(String token :termElements) {
+			 
+			 String operator = operatorElements.get(i);
+			 System.out.println(token + " " + operator);
+	      	 BooleanClause b = new BooleanClause(new TermQuery(new Term("text", "token")),
+                        BooleanClause.Occur.MUST);
+	      	 
+			 //Add boolean
+			 if(operator == "*") {
+				 tempQuery.clauses().add(b);
+			 }
+			 
+			 //Add boolean
+			 if(operator == "+") {
+				 tempQuery.clauses().add(b);
+			 }
+			 
+			 //End reached
+			 if(operator == " ") {
+				 tempQuery.clauses().add(b);
+			 }
+			 
+			 //Add boolean
+			 if(operator != previous) {
+				 BooleanClause c = new BooleanClause(tempQuery, BooleanClause.Occur.SHOULD);
+				 BooleanClause d = new BooleanClause(tempQuery, BooleanClause.Occur.SHOULD);
+				 
+				
+			 }
+			 
+			 previous = operator;
+			 
+			 i++;
+	
+			 
+		 }*/
+		 
+ 	 	BooleanClause b = new BooleanClause(new TermQuery(new Term("text", "token")),
                 BooleanClause.Occur.MUST);
-        /*
-        BooleanClause b2 = new BooleanClause(
-                new TermQuery(new Term("file", "CACM-0002.html")),
-                BooleanClause.Occur.SHOULD);
-         */
-   
-        BooleanQuery bq = new BooleanQuery.Builder().add(b).build();
-        
+		
+
+
+		 /*
+		 
+		 for(String token : terms) {
+			char currentChar = token.charAt(0);
+			System.out.println(token);
+        	if(currentChar == '!'){
+        		//Remove the ! symbol
+        		token = token.substring(1);
+        	 	BooleanClause b = new BooleanClause(new TermQuery(new Term("text", "token")),
+                        BooleanClause.Occur.MUST);
+        	 	termsAnd.add(b);
+        	}
+		 }*/
+		      
+
         return bq;
 		}
 	
@@ -157,21 +245,8 @@ public class Main {
     	Index indexFile = new Index(Config.DATA_DIR,Config.INDEX_DIR);
     	
   
-    	//Retrieve a query from the user
-		Term t = new Term("file", "java");
-		Query query = new TermQuery(t);
-		
-		//Query based on file
-        Query q = new QueryParser("file", indexFile.analyzer).parse("CACM-0001.html");
-        //Query bassed on context of text
-        Query q2 = new QueryParser("text", indexFile.analyzer).parse("CACM-0001.html");
-        
-        //`A Term represents a word from text. This is the unit of search. It is composed of two elements, 
-        //the text of the word, as a string, and the name of the field that the text occurred in.
-        Query q3 = new TermQuery(new Term("file", "CACM-0001.html"));
-        
-        
-        searchIndexQuery("((!CACM-0001.html^CACM-0002.html)^(!CACM-0001.html^CACM-0002.html))",indexFile);
+    
+        searchIndexQuery("!A + B * C",indexFile);
         
        
         
