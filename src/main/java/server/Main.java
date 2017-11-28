@@ -78,7 +78,7 @@ public class Main {
         for(int i=0;i<hits.length;++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
-            System.out.println((i + 1) + ". " + d.get("file") + " " +  d.get("text"));
+            System.out.println((i + 1) + ". " + d.get("file"));
         }
 
         // reader can only be closed when there
@@ -118,14 +118,29 @@ public class Main {
 	  }
 	  
   
-  static BooleanQuery createTermQuery(List<String> termElements) {
-  		BooleanQuery query = new BooleanQuery.Builder().build();
+  static BooleanQuery createTermQuery(List<String> termElements,List<String> operatorElements) {
+	  	BooleanQuery.Builder query = new BooleanQuery.Builder();
+	  	int it = 0;
+
+	  
   		for(String token :termElements) {
-	      	 BooleanClause b = new BooleanClause(new TermQuery(new Term("text", token)),
-                       BooleanClause.Occur.MUST);
-	      	query.clauses().add(b);
+  		  	String currentOperator = operatorElements.get(it);
+			char currentChar = token.charAt(0);
+			System.out.println(token + " " + currentOperator);
+        	if(currentChar == '!'){
+        		//Remove the ! symbol
+        		token = token.substring(1);
+        		TermQuery t = new TermQuery(new Term("text", token));
+        		query.add(new BooleanClause(t,BooleanClause.Occur.MUST_NOT));
+        	}else if(currentChar == '+'){
+    	      	query.add(new BooleanClause(new TermQuery(new Term("text", token)),BooleanClause.Occur.SHOULD));
+        	}else {
+        		query.add(new BooleanClause(new TermQuery(new Term("text", token)),BooleanClause.Occur.MUST));
+        	}
+        	it++;
 		 }
-  		 return query;	
+  		System.out.println("\n");
+  		 return query.build();	
   	}
 
 	
@@ -133,12 +148,17 @@ public class Main {
 		
 		 
 		 //Extract the elements between brackets
+		
+		
 		 String[] terms = query.split(" ");
 		 
 		 List<String> termElements = new ArrayList<String>();
 		 List<String> operatorElements = new ArrayList<String>();
 		 
+		 //Filter the ( ) tags
 		 
+		 
+		 // (A ^ B ^ C) ^ (A) 
 		 
 		 //Filter terms and boolean expressions
 		 for(String token : terms) {
@@ -159,12 +179,12 @@ public class Main {
 						
 			}
 		 }
-		 
+	
+		 //To match the size of the terms -> Indicates the end of the query
 		 operatorElements.add("");
-		 BooleanQuery b = createTermQuery(termElements);
-		 BooleanQuery bq = new BooleanQuery.Builder().build();
-		 bq.clauses().add(new BooleanClause(b, BooleanClause.Occur.MUST));
-		 
+		 System.out.println(termElements);
+		 BooleanQuery b = createTermQuery(termElements,operatorElements);
+
 	
 		 /*
 		 int i = 0;
@@ -210,10 +230,7 @@ public class Main {
 	
 			 
 		 }*/
-		 
- 	 	BooleanClause b = new BooleanClause(new TermQuery(new Term("text", "token")),
-                BooleanClause.Occur.MUST);
-		
+	
 
 
 		 /*
@@ -231,7 +248,7 @@ public class Main {
 		 }*/
 		      
 
-        return bq;
+        return b;
 		}
 	
 	
@@ -246,8 +263,8 @@ public class Main {
     	
   
     
-        searchIndexQuery("!A + B * C",indexFile);
-        
+        //searchIndexQuery("Perlis,",indexFile);
+        searchIndexQuery("samelson",indexFile);
        
         
         

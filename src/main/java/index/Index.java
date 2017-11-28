@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -25,6 +27,7 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import analyzer.SoundexAnalyzer;
 import config.Config;
 
 public class Index {
@@ -36,11 +39,9 @@ public class Index {
 	
 	public Index(String dataDirectory,String indexDirectory) throws IOException, SAXException, TikaException {
 		this.directory = FSDirectory.open(Paths.get(indexDirectory));
-    	this.analyzer = new WhitespaceAnalyzer();
+    	//this.analyzer = new SimpleAnalyzer();
+    	this.analyzer = new SoundexAnalyzer();
     	createIndex(dataDirectory,indexDirectory);
-
-		
-		
 	}
 	
 	private static void createIndex(String dataDirectory,String indexDirectory) throws IOException, SAXException, TikaException {
@@ -60,7 +61,9 @@ public class Index {
 		
 			ParseContext pcontext = new ParseContext();
 			FileInputStream inputstream = new FileInputStream(file);
-		      //Html parser 
+		    
+			
+			//Html parser 
 		    HtmlParser htmlparser = new HtmlParser();
 		    htmlparser.parse(inputstream, handler, metadata,pcontext);
 
@@ -78,8 +81,16 @@ public class Index {
 			String text = handler.toString();
 			String fileName = file.getName();
 			System.out.println("Indexing :  " + fileName);
+			
+			
+			//TODO
+			//Make terms for each word 
+			
+			
 			Document doc = new Document();
 			doc.add(new TextField("file", fileName, Store.YES));
+			
+			//System.out.println(text);
 			doc.add(new TextField("text", text, Store.YES));
 			writer.addDocument(doc);
 		}

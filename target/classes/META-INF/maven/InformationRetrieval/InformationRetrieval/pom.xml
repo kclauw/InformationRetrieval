@@ -52,6 +52,13 @@
 			<artifactId>lucene-highlighter</artifactId>
 			<version>${lucene.version}</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.lucene</groupId>
+		    <artifactId>lucene-analyzers-phonetic</artifactId>
+		    <version>6.1.0</version>
+		</dependency>
+		
 	</dependencies>
  
 

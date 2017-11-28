@@ -1,4 +1,5 @@
-/home/god2/git/InformationRetrieval/src/main/java/config/Config.java
-/home/god2/git/InformationRetrieval/src/main/java/index/Index.java
-/home/god2/git/InformationRetrieval/src/main/java/server/Main.java
-/home/god2/git/InformationRetrieval/src/main/java/query/Query.java
+/home/god/git/InformationRetrieval/src/main/java/query/Query.java
+/home/god/git/InformationRetrieval/src/main/java/analyzer/SoundexAnalyzer.java
+/home/god/git/InformationRetrieval/src/main/java/server/Main.java
+/home/god/git/InformationRetrieval/src/main/java/config/Config.java
+/home/god/git/InformationRetrieval/src/main/java/index/Index.java
