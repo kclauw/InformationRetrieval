@@ -10,7 +10,11 @@ import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.phonetic.DoubleMetaphoneFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
+
+import token.PermutermFilter;
+
 import org.apache.lucene.analysis.standard.StandardFilter;
+
 
 public class SoundexAnalyzer extends Analyzer {
 	
@@ -18,15 +22,18 @@ public class SoundexAnalyzer extends Analyzer {
 
 	@Override
 	protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new LetterTokenizer();
+        Tokenizer tokenizer = new StandardTokenizer();
 
     
         
        
        
         TokenStream stream = new DoubleMetaphoneFilter(tokenizer, 6, false);
+     
+        stream = new PermutermFilter(tokenizer);
         stream = new LowerCaseFilter(tokenizer);
         
+
         //   stream = new CJKWidthFilter(stream);  //Note this WidthFilter!  I believe this does the char width transform you are looking for.
      //   stream = new PorterStemFilter(stream); //Nothing stopping you using a second stemmer, really.
         return new TokenStreamComponents(tokenizer, stream);

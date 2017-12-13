@@ -95,6 +95,8 @@ public class Index {
 			writer.addDocument(doc);
 		}
 		
+		
+		
 	
 	
 		
