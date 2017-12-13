@@ -191,31 +191,10 @@ public class SearchQuery {
 		}
 	
 
-	
-	public static void searchIndexQuery(String query,Index indexFile) throws CorruptIndexException, IOException {
-		
-		
-		
-		//Create wildcard query
-        Query wildCard = new WildcardQuery(new Term("text", query));
-        
-        
-		BooleanQuery bq = createBooleanQuery(indexFile,query);
-		
-		
-		
+	public static void printResults(ScoreDoc[] hits,Index indexFile) throws IOException {
 
-        
-		
-        // 3. search
-        int hitsPerPage = 10;
-        IndexReader reader = DirectoryReader.open(indexFile.directory);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        TopDocs docs = searcher.search(bq, hitsPerPage);
-        ScoreDoc[] hits = docs.scoreDocs;
-        
-
-
+		IndexReader reader = DirectoryReader.open(indexFile.directory);
+		IndexSearcher searcher = new IndexSearcher(reader);
         // 4. display results
         System.out.println("PRINTING  FOUND DOCUMENT");
         for(int i=0;i<hits.length;++i) {
@@ -227,6 +206,29 @@ public class SearchQuery {
         // reader can only be closed when there
         // is no need to access the documents any more.
         reader.close();
+
+	}
+	public static ScoreDoc[] searchIndexQuery(String query,Index indexFile) throws CorruptIndexException, IOException {
+		
+		
+		
+		//Create wildcard query
+        Query wildCard = new WildcardQuery(new Term("text", query));
+        
+        
+		BooleanQuery bq = createBooleanQuery(indexFile,query);
+		
+		
+	
+		
+        // 3. search
+        int hitsPerPage = 10;
+        IndexReader reader = DirectoryReader.open(indexFile.directory);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        TopDocs docs = searcher.search(bq, hitsPerPage);
+        ScoreDoc[] hits = docs.scoreDocs;
+        return hits;
+
 
 	}
 	
