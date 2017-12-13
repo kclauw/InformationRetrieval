@@ -76,8 +76,9 @@ public class Main {
   
    
      
-    	SearchQuery.searchIndexQuery("Samelson ^ Perlis",indexFile);
-    	SearchQuery.searchIndexQuery("samelson ^ perlis",indexFile);
+    	ScoreDoc[] hits = SearchQuery.searchIndexQuery("Samelson ^ Perlis",indexFile);
+    	SearchQuery.printResults(hits, indexFile);
+    	//SearchQuery.searchIndexQuery("samelson ^ perlis",indexFile);
         
 
 
