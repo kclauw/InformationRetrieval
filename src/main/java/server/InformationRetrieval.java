@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +36,10 @@ import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
+import org.apache.lucene.search.similarities.BM25Similarity;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
@@ -56,6 +61,9 @@ public class InformationRetrieval {
 	private static ScoreDoc[] hits;
 	private static BooleanQuery bq;
 	
+	private static IndexReader reader;
+	private static IndexSearcher searcher;
+	
 	
 	
 	static Index indexFile;
@@ -66,6 +74,8 @@ public class InformationRetrieval {
     	this.analyzer = new SoundexAnalyzer();
     	this.index = new Index(directory,analyzer);
     	index.createIndex(dataDirectory,indexDirectory);
+		this.reader = DirectoryReader.open(directory);
+		this.searcher = new IndexSearcher(reader);
 
 	}
 	
@@ -80,89 +90,112 @@ public class InformationRetrieval {
 	    }
 	    return tagValues;
 	}
-
 	
-	public static void printResults(String query) throws IOException, ParseException, InvalidTokenOffsetsException {
+	/**
+	 * This method calculates the TF-IDF score for each terms in the indexed
+	 * documents
+	 *
+	 * @param total retrieved documents
+	 * @return - Hashmap of TF-IDF score per each term in document 
+	 * @throws ParseException
+	 * @throws IOException 
+	 */
+	public static HashMap<Integer, HashMap> tfIdfScore(ScoreDoc[] hits) throws ParseException, IOException {
 		
 		
-
-		
-		ScoreDoc[] hits = searchIndexQuery(query);
 		IndexReader reader = DirectoryReader.open(directory);
 		IndexSearcher searcher = new IndexSearcher(reader);
 		
+		
+		int totalDocuments = hits.length;
+		
+		HashMap<Integer, HashMap> scoreMap = new HashMap<Integer, HashMap>();
+	
+        for(int i=0;i<totalDocuments;++i) {
+            int docId = hits[i].doc;
+            Document d = searcher.doc(docId);
+            HashMap<String, Float> termMap = new HashMap<String, Float>();
+       
+			TokenStream tokenStream =
+			TokenSources.getAnyTokenStream(reader, hits[i].doc,
+			"content", analyzer);
+            Terms termVector = reader.getTermVector(docId,"contents");
+            TermsEnum itr = termVector.iterator();
+            
+            
+            BytesRef term = null;
+            while((term = itr.next()) != null){
+            	
+                try{
+                	ClassicSimilarity simi = new ClassicSimilarity();
+	         
+
+                    Term termInstance = new Term("contents",term);
+                    
+                    // TF-IDF calculations
+                    long tf = reader.totalTermFreq(termInstance);
+                    long docCount = reader.docFreq(termInstance);
+	                float idf = simi.idf(docCount, totalDocuments);
+	                termMap.put(term.utf8ToString(), (tf * idf));
+                    
+                    System.out.println("term: "+term.utf8ToString()+", termFreq = "+tf+", docCount = "+docCount + " total document " + totalDocuments + "TF * IDF " + (tf * idf));
+                
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+            }  	
+            
+            System.out.println(termMap);
+            
+            scoreMap.put(docId, termMap);
+        }
+        
+        System.out.println("-----------------");
+        reader.close();
+     
+	    return scoreMap;
+	}
+
+
+	
+	public static void printResults(ScoreDoc[] hits) throws IOException, ParseException, InvalidTokenOffsetsException {
+		
+	
+		IndexReader reader = DirectoryReader.open(directory);
+		IndexSearcher searcher = new IndexSearcher(reader);
+		
+		//Part of highlighter
 		SimpleHTMLFormatter simpleHTMLFormatter = new
 				SimpleHTMLFormatter("<term>", "</term>");
 				SimpleHTMLEncoder simpleHTMLEncoder = new SimpleHTMLEncoder();
 				Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
 				simpleHTMLEncoder, new QueryScorer(bq));
-				
-	
-				
-
-	
-		
-	
 			
-	
-		
-	
         System.out.println("-----------------");
         for(int i=0;i<hits.length;++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
-   
-        
+            String text = d.get("content");
    
             System.out.println((i + 1) + ". " + d.get("file"));
-            String text = d.get("content");
-            
-
+           
 			TokenStream tokenStream =
 			TokenSources.getAnyTokenStream(reader, hits[i].doc,
 			"content", analyzer);
 					
-		
-			
             String[] frags = highlighter.getBestFragments(tokenStream, text, 10);
             for (String frag : frags)
             {
 
                 System.out.println(Arrays.toString(getTagValues(frag).toArray()));
-                
             }
-            
-           
-        
-            		
-            text = text.replaceAll("\\d","");
-            text = text.replaceAll(" ","");
-    
-            //System.out.println(text);
+          
             System.out.println("\n");
-            
-            Terms termVector = reader.getTermVector(docId,"contents");
-            TermsEnum itr = termVector.iterator();
-            
-            BytesRef term = null;
-            while((term = itr.next()) != null){
-                try{
-                    String termText = term.utf8ToString();
-                    Term termInstance = new Term("contents",term);
-                    long termFreq = reader.totalTermFreq(termInstance);
-                    long docCount = reader.docFreq(termInstance);
-
-                    System.out.println("term: "+termText+", termFreq = "+termFreq+", docCount = "+docCount);
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-            }  
-            
-            
-    		
+    
         }
         
 
+        
         System.out.println("-----------------");
         reader.close();
 	}

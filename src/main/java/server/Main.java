@@ -10,6 +10,7 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -98,7 +99,12 @@ public class Main {
 
         //query = bufferedReader.readLine();
         //System.out.println("Retrieving documents containing : " + query.toLowerCase());
-        app.printResults("parameter ^ estimation");
+        
+        ScoreDoc[] hits = app.searchIndexQuery("parameter ^ estimation");
+        
+        app.printResults(hits);
+
+        HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
         
     
         
