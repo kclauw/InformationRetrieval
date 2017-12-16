@@ -100,7 +100,7 @@ public class Main {
         //query = bufferedReader.readLine();
         //System.out.println("Retrieving documents containing : " + query.toLowerCase());
         
-        ScoreDoc[] hits = app.searchIndexQuery("parameter ^ estimation");
+        ScoreDoc[] hits = app.searchIndexQuery("parameter ^ estimation",10);
         
         app.printResults(hits);
 

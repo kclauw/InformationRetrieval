@@ -200,9 +200,9 @@ public class InformationRetrieval {
         reader.close();
 	}
 	
-	public static ScoreDoc[] searchIndexQuery(String query) throws CorruptIndexException, IOException {
+	public static ScoreDoc[] searchIndexQuery(String query,int hitsPerPage) throws CorruptIndexException, IOException {
 		bq = SearchQuery.createBooleanQuery(indexFile,query);
-        int hitsPerPage = 10;
+
         IndexReader reader = DirectoryReader.open(directory);
         IndexSearcher searcher = new IndexSearcher(reader);
         TopDocs docs = searcher.search(bq, hitsPerPage);
