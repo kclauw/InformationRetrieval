@@ -13,8 +13,17 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.tika.exception.TikaException;
@@ -26,25 +35,28 @@ import org.apache.tika.parser.html.HtmlParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.apache.lucene.document.Field;
 
 import analyzer.SoundexAnalyzer;
 import config.Config;
+import query.SearchQuery;
 
 public class Index {
 	
-	public static Directory directory;
-	public static Analyzer analyzer;
+	private static Directory directory;
+	private static Analyzer analyzer;
 
 
 	
-	public Index(String dataDirectory,String indexDirectory) throws IOException, SAXException, TikaException {
-		this.directory = FSDirectory.open(Paths.get(indexDirectory));
-    	//this.analyzer = new SimpleAnalyzer();
-    	this.analyzer = new SoundexAnalyzer();
-    	createIndex(dataDirectory,indexDirectory);
+	public Index(Directory directory,Analyzer analyzer) throws IOException, SAXException, TikaException {
+	
+    	this.directory = directory;
+    	this.analyzer = analyzer;
 	}
 	
-	private static void createIndex(String dataDirectory,String indexDirectory) throws IOException, SAXException, TikaException {
+	
+	
+	public static void createIndex(String dataDirectory,String indexDirectory) throws IOException, SAXException, TikaException {
     
 		File documents = new File(dataDirectory);
 		IndexWriterConfig conf = new IndexWriterConfig(analyzer);
@@ -61,7 +73,8 @@ public class Index {
 		
 			ParseContext pcontext = new ParseContext();
 			FileInputStream inputstream = new FileInputStream(file);
-		    
+			
+		
 			
 			//Html parser 
 		    HtmlParser htmlparser = new HtmlParser();
@@ -80,28 +93,29 @@ public class Index {
 			}
 			String text = handler.toString();
 			String fileName = file.getName();
-			System.out.println("Indexing :  " + fileName);
-			
-			
-			//TODO
-			//Make terms for each word 
+			//System.out.println("Indexing :  " + fileName);
 			
 			
 			Document doc = new Document();
 			doc.add(new TextField("file", fileName, Store.YES));
+			doc.add(new StoredField("content", text));
 			
-			//System.out.println(text);
+			FieldType myFieldType = new FieldType(TextField.TYPE_STORED);
+			myFieldType.setStoreTermVectors(true);
+
+			doc.add(new Field("contents", text, myFieldType));
+		    
+	
 			doc.add(new TextField("text", text, Store.YES));
 			writer.addDocument(doc);
 		}
 		
 		
-		
-	
-	
-		
 		writer.commit();
 		//writer.deleteUnusedFiles();
 		System.out.println(writer.maxDoc() + " documents written");
 	}
+	
+
+
 }

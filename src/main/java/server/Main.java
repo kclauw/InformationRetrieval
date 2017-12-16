@@ -1,8 +1,10 @@
 package server;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Path;
@@ -61,39 +63,58 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.TextField;
 
-
+/***
+ * 
+ * 
+ *
+ */
 public class Main {
 
 
+
+    
+
+	
     public static void main(String[] args) throws Exception {
     	
     	//System.out.println("Enter query :");
-		//String querystr = System.console().readLine();
+		//String querystr = System.consolke().readLine();
 		
     	//Create the index
-    	Index indexFile = new Index(Config.DATA_DIR,Config.INDEX_DIR);
+    
+    	InformationRetrieval app =  new InformationRetrieval(Config.DATA_DIR, Config.INDEX_DIR);
+
+		//Index indexFile = new Index(Config.DATA_DIR,Config.INDEX_DIR);
     	
-  
-   
-     
-    	ScoreDoc[] hits = SearchQuery.searchIndexQuery("Samelson ^ Perlis",indexFile);
-    	SearchQuery.printResults(hits, indexFile);
-    	//SearchQuery.searchIndexQuery("samelson ^ perlis",indexFile);
-        
+    	
+    	
+        String query = null;
 
+        //  prompt the user to enter their name
 
+        //System.out.print("Enter your query: ");
+        //  open up standard input, and buffer it
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
-       
+        //query = bufferedReader.readLine();
+        //System.out.println("Retrieving documents containing : " + query.toLowerCase());
+        app.printResults("parameter ^ estimation");
         
+    
         
-        
-        
-       
-     
-
-
         
     }
+        
+      
+   
+     
+
+    
+    	
+ 
+
+
+   
 
 
 
