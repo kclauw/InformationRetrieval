@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -106,18 +107,17 @@ public class Main {
  
         app.printResults(hits);
 
-        HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
         
-        System.out.println(tdfIdfScores.get(0).keySet());
-        System.out.println(tdfIdfScores.get(0).entrySet());
-        System.out.println(tdfIdfScores.get(1).keySet());
-        for (Entry<Integer, HashMap> documentEntry : tdfIdfScores.entrySet()) {
-        	
-        	HashMap terms = documentEntry.getValue();
-            // ...
-        }
+        
+        HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
+
+   
         
         //Create the terms
+        
+        //Create matrix of documents and terms 
+        
+        
         
         //
         

@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +68,12 @@ public class InformationRetrieval {
 	private static IndexSearcher searcher;
 	
 	
+	//Ranking statistics
+	private HashMap<Integer, HashMap> tfIdfScore;
+	private static Set<String> termsInCollection = new TreeSet<String>();
+	
+
+	
 	
 	static Index indexFile;
 	
@@ -77,7 +85,13 @@ public class InformationRetrieval {
     	index.createIndex(dataDirectory,indexDirectory);
 		this.reader = DirectoryReader.open(directory);
 		this.searcher = new IndexSearcher(reader);
+		
+		
 
+	}
+	
+	public Set<String> getTermsInCollection() {
+		return termsInCollection;
 	}
 	
 	
@@ -106,6 +120,7 @@ public class InformationRetrieval {
 		
 		IndexReader reader = DirectoryReader.open(directory);
 		IndexSearcher searcher = new IndexSearcher(reader);
+
 		
 		
 		int totalDocuments = hits.length;
@@ -132,12 +147,14 @@ public class InformationRetrieval {
 	         
 
                     Term termInstance = new Term("contents",term);
+                    termsInCollection.add(term.utf8ToString());
+                    
                   //  System.out.println(term.utf8ToString());
                     // TF-IDF calculations
                     long tf = reader.totalTermFreq(termInstance);
                     long docCount = reader.docFreq(termInstance);
 	                float idf = simi.idf(docCount, totalDocuments);
-	                termMap.put(term.utf8ToString(), (tf * idf));
+	                termMap.put(term.utf8ToString().toString(), (tf * idf));
                     
                   //  System.out.println("term: "+term.utf8ToString()+", termFreq = "+tf+", docCount = "+docCount + " total document " + totalDocuments + "TF * IDF " + (tf * idf));
                 
@@ -151,7 +168,21 @@ public class InformationRetrieval {
             documentMap.put(docId, termMap);
         }
         
+        
+        
+        //Add 
+        for (Integer documentId : documentMap.keySet()) {
+        	
+		    for(String term : termsInCollection){ 
+		    	if(documentMap.get(documentId).get(term) == null) {
+		    		documentMap.get(documentId).put(term, 0);
+		    	}
+		    }
+        }
+
+        
         System.out.println("-----------------");
+        System.out.println(termsInCollection);
         reader.close();
      
 	    return documentMap;
