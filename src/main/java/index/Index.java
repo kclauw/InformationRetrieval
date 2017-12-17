@@ -92,6 +92,8 @@ public class Index {
 				inputstream.close();
 			}
 			String text = handler.toString();
+			
+			text = text.replaceAll("\\d","");
 			String fileName = file.getName();
 			//System.out.println("Indexing :  " + fileName);
 			

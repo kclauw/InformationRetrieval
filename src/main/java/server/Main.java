@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,14 +101,25 @@ public class Main {
         //query = bufferedReader.readLine();
         //System.out.println("Retrieving documents containing : " + query.toLowerCase());
         
-        ScoreDoc[] hits = app.searchIndexQuery("(parameter ^ estimation) ^ (parameter ^ estimation)",10);
+        ScoreDoc[] hits = app.searchIndexQuery("*a",10);
         //ScoreDoc[] hits = app.searchIndexQuery("parameter + (parameter ^ estimation)",10);
  
         app.printResults(hits);
 
-        //HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
+        HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
         
-    
+        System.out.println(tdfIdfScores.get(0).keySet());
+        System.out.println(tdfIdfScores.get(0).entrySet());
+        System.out.println(tdfIdfScores.get(1).keySet());
+        for (Entry<Integer, HashMap> documentEntry : tdfIdfScores.entrySet()) {
+        	
+        	HashMap terms = documentEntry.getValue();
+            // ...
+        }
+        
+        //Create the terms
+        
+        //
         
         
     }

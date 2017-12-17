@@ -38,10 +38,10 @@ public class SearchQuery {
 	
 	 public static void add_term(BooleanQuery.Builder query,String term) {
      	if (term.charAt(0) == '!'){
-    		query.add(new BooleanClause(new TermQuery(new Term("text", term.substring(1))),BooleanClause.Occur.MUST_NOT));	
+    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term.substring(1))),BooleanClause.Occur.MUST_NOT));	
     	}else{
     		System.out.println("MUST");
-    		query.add(new BooleanClause(new TermQuery(new Term("text", term)),BooleanClause.Occur.MUST));
+    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term)),BooleanClause.Occur.MUST));
     	};
 	 }
 	 
@@ -123,10 +123,13 @@ public class SearchQuery {
 		  	System.out.println(termElements);
 		  	System.out.println(operatorElements);
 		  	if(termElements.size() == 1) {
-		  		add_term(main_query,termElements.get(0));
-		  		
-		  		proccessTermsBetweenBracket(termElements.get(0));
-		  		return proccessTermsBetweenBracket(termElements.get(0));
+		  		String token = termElements.get(0);
+		  		if(token.charAt(0) == '(') {
+		  			return proccessTermsBetweenBracket(termElements.get(0));
+		  		}else {
+		  			add_term(main_query,termElements.get(0));
+		  			return main_query.build();
+		  		}
 		  	}
 		  	
 		  	int it = 0;

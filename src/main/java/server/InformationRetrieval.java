@@ -123,7 +123,7 @@ public class InformationRetrieval {
             Terms termVector = reader.getTermVector(docId,"contents");
             TermsEnum itr = termVector.iterator();
             
-            
+            System.out.println("DOCUMENT" + docId);
             BytesRef term = null;
             while((term = itr.next()) != null){
             	
@@ -132,21 +132,21 @@ public class InformationRetrieval {
 	         
 
                     Term termInstance = new Term("contents",term);
-                    
+                  //  System.out.println(term.utf8ToString());
                     // TF-IDF calculations
                     long tf = reader.totalTermFreq(termInstance);
                     long docCount = reader.docFreq(termInstance);
 	                float idf = simi.idf(docCount, totalDocuments);
 	                termMap.put(term.utf8ToString(), (tf * idf));
                     
-                    System.out.println("term: "+term.utf8ToString()+", termFreq = "+tf+", docCount = "+docCount + " total document " + totalDocuments + "TF * IDF " + (tf * idf));
+                  //  System.out.println("term: "+term.utf8ToString()+", termFreq = "+tf+", docCount = "+docCount + " total document " + totalDocuments + "TF * IDF " + (tf * idf));
                 
                 }catch(Exception e){
                     System.out.println(e);
                 }
             }  	
             
-            System.out.println(termMap);
+           // System.out.println(termMap);
             
             documentMap.put(docId, termMap);
         }
