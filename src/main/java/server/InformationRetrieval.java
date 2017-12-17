@@ -23,6 +23,7 @@ import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -109,7 +110,7 @@ public class InformationRetrieval {
 		
 		int totalDocuments = hits.length;
 		
-		HashMap<Integer, HashMap> scoreMap = new HashMap<Integer, HashMap>();
+		HashMap<Integer, HashMap> documentMap = new HashMap<Integer, HashMap>();
 	
         for(int i=0;i<totalDocuments;++i) {
             int docId = hits[i].doc;
@@ -147,13 +148,13 @@ public class InformationRetrieval {
             
             System.out.println(termMap);
             
-            scoreMap.put(docId, termMap);
+            documentMap.put(docId, termMap);
         }
         
         System.out.println("-----------------");
         reader.close();
      
-	    return scoreMap;
+	    return documentMap;
 	}
 
 
@@ -205,6 +206,7 @@ public class InformationRetrieval {
 
         IndexReader reader = DirectoryReader.open(directory);
         IndexSearcher searcher = new IndexSearcher(reader);
+  
         TopDocs docs = searcher.search(bq, hitsPerPage);
         
         ScoreDoc[] hits = docs.scoreDocs;

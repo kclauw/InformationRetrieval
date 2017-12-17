@@ -16,7 +16,9 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -32,53 +34,74 @@ import index.Index;
 
 public class SearchQuery {
 	
-	
-	
-	 private static BooleanClause getSingleTerm(String term) {
-		 if(term.charAt(0) == '!') {
-			return new BooleanClause(new WildcardQuery(new Term("text", term)),BooleanClause.Occur.MUST_NOT);
-		 }else {
-			return new BooleanClause(new WildcardQuery(new Term("text", term)), BooleanClause.Occur.MUST);
-		 } 
-	 }
-	 
+
 
 	
-	 static BooleanQuery createTermQuery(List<String> termElements,List<Character> operatorElements) {
+	 static BooleanQuery createTermQuery(List<String> termElements,List<Character> operatorElements,String q) {
 
 		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
+		  	BooleanQuery.Builder query2 = new BooleanQuery.Builder();
 		  	int it = 0;
 		  	System.out.println(operatorElements);
 		  	System.out.println(termElements);
 		  	
 		  	
+		  	 String[] terms = q.split(" ");
+		 	
+			 //Filter the ( ) tags
+			 
+			 
+			 // (A ^ B ^ C) ^ (A) 
+			 
+			 //Filter terms and boolean expressions
+			 for(String token : terms) {
+				char currentChar = token.charAt(0);
+				
+				switch(currentChar) {
+				case '^' :
+						operatorElements.add(currentChar);
+						break;
+				case '+' :
+						operatorElements.add(currentChar);
+						break;
+				case '!' :
+						termElements.add(token);
+						break;
+				default:termElements.add(token); 
+						break;
+							
+				}
+			 }
 		  	
+		  	
+		
 
 	  		for(char currentOperator :operatorElements) {
 
 	  			 System.out.println("Current_operator : " + it);
 	  			 String term1 = termElements.get(it);
 	  			 String term2 = termElements.get(it+1);
-
-	  		
+	 
 				 switch(currentOperator){
-		            case '!': 	        		//Remove the ! symbol
-		            	System.out.println("!");
-		        	//	token = token.substring(1);
-		        	///	WildcardQuery t = new WildcardQuery(new Term("text", token));
-		        		//query.add(new BooleanClause(t,BooleanClause.Occur.MUST_NOT));;
-		            	
-		            	break;
+				  	
 		            case '+':
+
 		           	 	query.add(new BooleanClause(new TermQuery(new Term("text", term1)),BooleanClause.Occur.SHOULD));
 		           	 	query.add(new BooleanClause(new TermQuery(new Term("text", term2)),BooleanClause.Occur.SHOULD));
+		           	 	
 		           	 	break;
 		            case '^': 
 		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term1)),BooleanClause.Occur.MUST));
 		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.MUST));
+		            	
 		            	break;
-
 				 } 
+	        	if (term1.charAt(0) == '!'){
+	        			query.add(new BooleanClause(new TermQuery(new Term("text", term1.substring(1))),BooleanClause.Occur.MUST_NOT));	
+	        	};
+			 	if (term2.charAt(0) == '!'){
+	        		query.add(new BooleanClause(new TermQuery(new Term("text", term2.substring(1))),BooleanClause.Occur.MUST_NOT));	
+			 	};
 	        	it++;
 			 }
 	  		
@@ -86,8 +109,9 @@ public class SearchQuery {
 	  	}
 	
 	
-	//Retrieve the terms between bracekts
-	void splitBrackets(String query,List<String> elements) {
+	static //Retrieve the terms between bracekts
+	 List<String> splitBrackets(String query) {
+		 List<String> elements = new ArrayList<String>();
 		 Matcher m = Pattern.compile("\\((.*?)\\)").matcher(query);
 
 		 while(m.find()) {
@@ -98,6 +122,7 @@ public class SearchQuery {
 			 }	 		 
 			 elements.add(word);
 		 }
+		 return elements;
 	}
 	
   public static List<String> tokenizeString(Analyzer analyzer, String string) {
@@ -117,16 +142,34 @@ public class SearchQuery {
 	
 	
 	public static BooleanQuery createBooleanQuery(Index indexFile,String query) {
-		
-		 
-		 //Extract the elements between brackets
-		
-		
-		 String[] terms = query.split(" ");
-		 
 		 List<String> termElements = new ArrayList<String>();
 		 List<Character> operatorElements = new ArrayList<Character>();
 		 
+		 List<String> split  = splitBrackets(query);
+
+		 for(String element: split) {
+			 System.out.println("Ele" +element);
+			 System.out.println(splitBrackets(element));
+			 
+			 //Create query
+			 if(element.charAt(0) == '(') {
+				 
+			 }
+			 
+			 
+			 //Add query
+			 if(element.charAt(0) == ')') {
+				 
+				 
+				 //End query
+			 }
+			 
+		 }
+		
+		 
+		
+		 String[] terms = query.split(" ");
+	
 		 //Filter the ( ) tags
 		 
 		 
@@ -155,71 +198,10 @@ public class SearchQuery {
 		 //To match the size of the terms -> Indicates the end of the query
 
 		// System.out.println(termElements);
-		 BooleanQuery b = createTermQuery(termElements,operatorElements);
+		 BooleanQuery b = createTermQuery(termElements,operatorElements,query);
 		 
 	
-		 /*
-		 int i = 0;
-		 String current = operatorElements.get(0);
-		 String previous = operatorElements.get(0);
-		 
-		 BooleanQuery orQuery = new BooleanQuery.Builder().build();
-		 BooleanQuery tempQuery = new BooleanQuery.Builder().build();
-		 System.out.println(query);
-		 for(String token :termElements) {
-			 
-			 String operator = operatorElements.get(i);
-			 System.out.println(token + " " + operator);
-	      	 BooleanClause b = new BooleanClause(new TermQuery(new Term("text", "token")),
-                       BooleanClause.Occur.MUST);
-	      	 
-			 //Add boolean
-			 if(operator == "*") {
-				 tempQuery.clauses().add(b);
-			 }
-			 
-			 //Add boolean
-			 if(operator == "+") {
-				 tempQuery.clauses().add(b);
-			 }
-			 
-			 //End reached
-			 if(operator == " ") {
-				 tempQuery.clauses().add(b);
-			 }
-			 
-			 //Add boolean
-			 if(operator != previous) {
-				 BooleanClause c = new BooleanClause(tempQuery, BooleanClause.Occur.SHOULD);
-				 BooleanClause d = new BooleanClause(tempQuery, BooleanClause.Occur.SHOULD);
-				 
-				
-			 }
-			 
-			 previous = operator;
-			 
-			 i++;
 	
-			 
-		 }*/
-	
-
-
-		 /*
-		 
-		 for(String token : terms) {
-			char currentChar = token.charAt(0);
-			System.out.println(token);
-       	if(currentChar == '!'){
-       		//Remove the ! symbol
-       		token = token.substring(1);
-       	 	BooleanClause b = new BooleanClause(new TermQuery(new Term("text", "token")),
-                       BooleanClause.Occur.MUST);
-       	 	termsAnd.add(b);
-       	}
-		 }*/
-		      
-
        return b;
 		}
 	

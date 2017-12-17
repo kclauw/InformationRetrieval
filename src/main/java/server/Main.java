@@ -100,11 +100,11 @@ public class Main {
         //query = bufferedReader.readLine();
         //System.out.println("Retrieving documents containing : " + query.toLowerCase());
         
-        ScoreDoc[] hits = app.searchIndexQuery("parameter ^ estimation",10);
+        ScoreDoc[] hits = app.searchIndexQuery("parameter + estimation",10);
         
         app.printResults(hits);
 
-        HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
+        //HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
         
     
         
