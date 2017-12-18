@@ -147,15 +147,15 @@ public class Main {
         
        // ScoreDoc[] hits = app.searchIndexQuery("*a",10);
         //ScoreDoc[] hits = app.searchIndexQuery("(parameter + estimation) ^ (for ^ parameter)",10);
-        ScoreDoc[] hits = app.searchIndexQuery("*a ^ *b",10);
+        ScoreDoc[] hits = app.searchIndexQuery("parameter",10);
         
         app.printResults(hits);
         
         
-        RankingEuclideanDistance r = new RankingEuclideanDistance(hits,app);
+        //RankingEuclideanDistance r = new RankingEuclideanDistance(hits,app);
         
-        r.initializeHeap();
-        r.printBestDocuments(4);
+       // r.initializeHeap();
+       // r.printBestDocuments(4);
         
         
     }
