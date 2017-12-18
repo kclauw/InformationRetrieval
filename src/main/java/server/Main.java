@@ -10,10 +10,13 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,10 +75,49 @@ import org.apache.lucene.document.TextField;
  *
  */
 public class Main {
+	
+	
+    public static class DocumentDistancePair {
+        private double key;
+        private Integer value;
+        
+        public DocumentDistancePair(double min_distance, Integer value) {
+            this.key = min_distance;
+            this.value = value;
+        }
 
-
-
+        // Constructors, getters etc.
+    }
     
+	public static Comparator<DocumentDistancePair> DocumentComparator = new Comparator<DocumentDistancePair>(){
+		
+
+
+		public int compare(DocumentDistancePair d1, DocumentDistancePair d2) {
+			// TODO Auto-generated method stub
+			 return (int) (d1.key - d2.key);
+		}
+	};
+	
+  
+
+
+
+
+
+    private static double GetEuclideanDistance(List<Double> collection, List<Double> collection2) {
+        double diff_square_sum = 0.0;
+    
+        for (int i = 0; i < collection.size(); i++) {
+        	
+        	double x = collection.get(i).doubleValue();
+        	double y = collection2.get(i).doubleValue();
+        	diff_square_sum = diff_square_sum + (x - y) * (x - y);
+        }
+    
+        //diff_square_sum = (collection - collection2) * (collection - collection2);
+        return Math.sqrt((double)diff_square_sum);
+    }
 
 	
     public static void main(String[] args) throws Exception {
@@ -109,10 +151,61 @@ public class Main {
 
         
         
-        HashMap<Integer, HashMap> tdfIdfScores = app.tfIdfScore(hits);
+        HashMap<Integer,HashMap<String, Double>> tdfIdfScores = app.tfIdfScore(hits);
 
-   
         
+        
+    
+        PriorityQueue<DocumentDistancePair> rankingPriorityQueue = new PriorityQueue<DocumentDistancePair>(DocumentComparator);
+        
+
+        
+        
+        for(Integer docX: tdfIdfScores.keySet()) {
+        
+        	double min_distance = 500000.0;
+     		for(Integer docY:  tdfIdfScores.keySet()) {
+    			
+     			HashMap<String, Double> termMapX = tdfIdfScores.get(docX);
+    			HashMap<String, Double> termMapY = tdfIdfScores.get(docY);
+
+    	//		System.out.println(termMapY.values());
+    			
+    			ArrayList<Double> yVector = new ArrayList<Double>(termMapX.values());
+    			ArrayList<Double> xVector = new ArrayList<Double>(termMapY.values());
+    			
+    			
+    			if(docX != docY) {
+        	     	double distance = GetEuclideanDistance(xVector,yVector);
+        	     //	System.out.println(distance);
+        	     	if(distance < min_distance) {
+        	     		min_distance = distance;
+        	     	}
+        			
+        			
+        			
+    				
+    			}
+    			
+    		
+
+    		}
+     		
+     		System.out.println("Document " + docX + " "  + min_distance);
+			rankingPriorityQueue.add(new DocumentDistancePair(min_distance, docX));
+		       
+     		
+        
+   
+        }
+        
+        System.out.println("Selected documents");
+        int rankN = 5;
+        for(int i = 0; i <= rankN;i++) {
+        	DocumentDistancePair entry = rankingPriorityQueue.poll();
+        	System.out.println("Document : "+entry.key+ " " +entry.value );
+        	
+        }
         //Create the terms
         
         //Create matrix of documents and terms 

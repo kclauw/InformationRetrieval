@@ -115,7 +115,7 @@ public class InformationRetrieval {
 	 * @throws ParseException
 	 * @throws IOException 
 	 */
-	public static HashMap<Integer, HashMap> tfIdfScore(ScoreDoc[] hits) throws ParseException, IOException {
+	public static HashMap<Integer, HashMap<String, Double>> tfIdfScore(ScoreDoc[] hits) throws ParseException, IOException {
 		
 		
 		IndexReader reader = DirectoryReader.open(directory);
@@ -125,12 +125,12 @@ public class InformationRetrieval {
 		
 		int totalDocuments = hits.length;
 		
-		HashMap<Integer, HashMap> documentMap = new HashMap<Integer, HashMap>();
+		HashMap<Integer, HashMap<String, Double>> documentMap = new HashMap<Integer, HashMap<String, Double>>();
 	
         for(int i=0;i<totalDocuments;++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
-            HashMap<String, Float> termMap = new HashMap<String, Float>();
+            HashMap<String, Double> termMap = new HashMap<String, Double>();
        
 			TokenStream tokenStream =
 			TokenSources.getAnyTokenStream(reader, hits[i].doc,
@@ -153,9 +153,11 @@ public class InformationRetrieval {
                     // TF-IDF calculations
                     long tf = reader.totalTermFreq(termInstance);
                     long docCount = reader.docFreq(termInstance);
-	                float idf = simi.idf(docCount, totalDocuments);
+	                double idf = simi.idf(docCount, totalDocuments);
+	                
+	               
 	                termMap.put(term.utf8ToString().toString(), (tf * idf));
-                    
+	  
                   //  System.out.println("term: "+term.utf8ToString()+", termFreq = "+tf+", docCount = "+docCount + " total document " + totalDocuments + "TF * IDF " + (tf * idf));
                 
                 }catch(Exception e){
@@ -175,14 +177,14 @@ public class InformationRetrieval {
         	
 		    for(String term : termsInCollection){ 
 		    	if(documentMap.get(documentId).get(term) == null) {
-		    		documentMap.get(documentId).put(term, 0);
+		    		documentMap.get(documentId).put(term, 0.0);
 		    	}
 		    }
         }
 
         
         System.out.println("-----------------");
-        System.out.println(termsInCollection);
+        System.out.println(termsInCollection.size());
         reader.close();
      
 	    return documentMap;
