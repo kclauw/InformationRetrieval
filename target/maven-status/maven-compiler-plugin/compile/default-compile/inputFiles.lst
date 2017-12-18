@@ -1,8 +1,9 @@
-/home/god2/git/InformationRetrieval/src/main/java/config/Config.java
-/home/god2/git/InformationRetrieval/src/main/java/query/SearchQuery.java
-/home/god2/git/InformationRetrieval/src/main/java/query/PermutermQuery.java
-/home/god2/git/InformationRetrieval/src/main/java/analyzer/SoundexAnalyzer.java
-/home/god2/git/InformationRetrieval/src/main/java/server/InformationRetrieval.java
-/home/god2/git/InformationRetrieval/src/main/java/index/Index.java
-/home/god2/git/InformationRetrieval/src/main/java/server/Main.java
-/home/god2/git/InformationRetrieval/src/main/java/token/PermutermFilter.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\index\Index.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\query\SearchQuery.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\token\PermutermFilter.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\ranking\RankingEuclideanDistance.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\config\Config.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\server\Main.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\query\PermutermQuery.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\analyzer\SoundexAnalyzer.java
+C:\Users\Steven\git\InformationRetrieval\src\main\java\server\InformationRetrieval.java

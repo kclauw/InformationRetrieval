@@ -1,0 +1,13 @@
+query\PermutermQuery.class
+server\Main$DocumentDistancePair.class
+server\Main.class
+config\Config.class
+analyzer\SoundexAnalyzer.class
+index\Index.class
+server\Main$1.class
+ranking\RankingEuclideanDistance$1.class
+token\PermutermFilter.class
+ranking\RankingEuclideanDistance.class
+ranking\RankingEuclideanDistance$DocumentDistancePair.class
+query\SearchQuery.class
+server\InformationRetrieval.class

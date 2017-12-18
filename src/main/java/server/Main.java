@@ -55,15 +55,14 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlParser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.junit.Test;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import config.Config;
 import index.Index;
-import junit.runner.Version;
 import token.PermutermFilter;
 import query.SearchQuery;
+import ranking.RankingCosine;
 import ranking.RankingEuclideanDistance;
 
 import org.apache.lucene.document.Field;
@@ -99,28 +98,9 @@ public class Main {
 			 return (int) (d2.key - d1.key);
 		}
 	};
-	
+
   
 
-
-
-
-
-    private static double GetEuclideanDistance(List<Double> collection, List<Double> collection2) {
-        double diff_square_sum = 0.0;
-    
-        for (int i = 0; i < collection.size(); i++) {
-        	
-        	double x = collection.get(i).doubleValue();
-        	double y = collection2.get(i).doubleValue();
-        	diff_square_sum = diff_square_sum + (x - y) * (x - y);
-        }
-    
-        //diff_square_sum = (collection - collection2) * (collection - collection2);
-        return Math.sqrt((double)diff_square_sum);
-    }
-
-	
     public static void main(String[] args) throws Exception {
     	
     	//System.out.println("Enter query :");
@@ -147,7 +127,7 @@ public class Main {
         
        // ScoreDoc[] hits = app.searchIndexQuery("*a",10);
         //ScoreDoc[] hits = app.searchIndexQuery("(parameter + estimation) ^ (for ^ parameter)",10);
-        ScoreDoc[] hits = app.searchIndexQuery("parameter",10);
+        ScoreDoc[] hits = app.searchIndexQuery("*a",10);
         
         app.printResults(hits);
         
@@ -156,6 +136,12 @@ public class Main {
         
        // r.initializeHeap();
        // r.printBestDocuments(4);
+        
+        RankingCosine r = new RankingCosine(hits,app);
+        
+        r.initializeHeap();
+        r.printBestDocuments(4);
+         
         
         
     }
