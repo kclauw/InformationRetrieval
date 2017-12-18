@@ -77,29 +77,7 @@ import org.apache.lucene.document.TextField;
 public class Main {
 	
 	
-    public static class DocumentDistancePair {
-        private double key;
-        private Integer value;
-        
-        public DocumentDistancePair(double min_distance, Integer value) {
-            this.key = min_distance;
-            this.value = value;
-        }
-
-        // Constructors, getters etc.
-    }
-    
-	public static Comparator<DocumentDistancePair> DocumentComparator = new Comparator<DocumentDistancePair>(){
-		
-
-
-		public int compare(DocumentDistancePair d1, DocumentDistancePair d2) {
-			// TODO Auto-generated method stub
-			 return (int) (d2.key - d1.key);
-		}
-	};
-
-  
+   
 
     public static void main(String[] args) throws Exception {
     	
@@ -130,6 +108,7 @@ public class Main {
         ScoreDoc[] hits = app.searchIndexQuery("*a",10);
         
         app.printResults(hits);
+ 
         
         
         //RankingEuclideanDistance r = new RankingEuclideanDistance(hits,app);
