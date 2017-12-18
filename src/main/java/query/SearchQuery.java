@@ -72,7 +72,7 @@ public class SearchQuery {
 		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.SHOULD));
 		           	 	break;
 		            case '^': 
-		        
+		            	System.out.println(term1 + " " + term2);
 		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term1)),BooleanClause.Occur.MUST));
 		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.MUST));
 		            	break;
@@ -122,13 +122,20 @@ public class SearchQuery {
 		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
 		  	System.out.println(termElements);
 		  	System.out.println(operatorElements);
+		  	
+		  
 		  	if(termElements.size() == 1) {
+		  	
 		  		String token = termElements.get(0);
-		  		if(token.charAt(0) == '(') {
-		  			return proccessTermsBetweenBracket(termElements.get(0));
-		  		}else {
+		  		System.out.println("Token "  +token);
+		  		if(operatorElements.get(0) != '(') {
+		  			System.out.println("SINGLE");
 		  			add_term(main_query,termElements.get(0));
 		  			return main_query.build();
+		  		}else {
+
+		  			System.out.println("SINGLE");
+		  			return proccessTermsBetweenBracket(termElements.get(0));
 		  		}
 		  	}
 		  	
@@ -143,26 +150,27 @@ public class SearchQuery {
 				 switch(currentOperator){
 		            case '+':
 		            	
-		            	if(operatorElements.get(it+1) == '(' ) {
+		            	if(it+1 < operatorElements.size()-1 &&operatorElements.get(it+1) == '(' ) {
 		            		it = it - 1;
 		            		break;
 		            	}
 		            	term1 = termElements.get(it);
-		            	term2 = termElements.get(it+1);
+		            	
 		            	//System.out.println("SHOULD" + term1 + " " + term2);
 		            	main_query.add(new BooleanClause(new WildcardQuery(new Term("text", term1)),BooleanClause.Occur.SHOULD));
 		            	
 		              	if(previousOperator != '('|| previousOperator == 0) {
+		              		term2 = termElements.get(it+1);
 		              		main_query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.SHOULD));
 		            	}
 		           	 	break;
 		            case '^': 
-		            	if(operatorElements.get(it+1) == '(' ) {
+		            	if(it+1 < operatorElements.size()-1 && operatorElements.get(it+1) == '(') {
 		            		it = it - 1;
 		            		break;
 		            	}
 		            	term1 = termElements.get(it);
-		            	System.out.println("^ADDING " + term1 + " " + operatorElements.get(it+1));
+		            //	System.out.println("^ADDING " + term1 + " " + operatorElements.get(it+1));
 
 		            	
 		            	
@@ -177,9 +185,10 @@ public class SearchQuery {
 		            	
 		            	break;
 		            case '(':
+		            	System.out.println(termElements);
 		            	term1 = termElements.get(it);
 
-		            	System.out.println("(ADDING " + term1 + " ");
+		            	System.out.println("(ADDING ( " + term1 + " ");
 		            	
 		       		    BooleanQuery bracketQuery = proccessTermsBetweenBracket(term1);
 		
@@ -188,12 +197,12 @@ public class SearchQuery {
 		            	
 		            	//String[] terms = query.split(" ");
 		       		    if (previousOperator == '^'){
-		       		     
+		       		    	System.out.println("MUST");
 		       		    	main_query.add(bracketQuery,BooleanClause.Occur.MUST);
 		       		    }else {
 		       		    	main_query.add(bracketQuery,BooleanClause.Occur.SHOULD);
 		       		    }
-		       		   
+		       		    //it = it - 1;
 		            	
 		            	break;
 		            default :
@@ -206,49 +215,7 @@ public class SearchQuery {
 
 	        	it++;
 			 }
-		  	
-		    System.out.println(main_query.build());
-		  	
-		
-/*
-		  	int it = 0;
-		  	System.out.println("-----------");
-		  	System.out.println(operatorElements);
-		  	System.out.println(termElements);
- 			String term1;	
- 			String term2;
- 			char bracketOperator = 0;
 
-	  		for(char currentOperator :operatorElements) {
-            	term1 = termElements.get(it);
-            	term2 = termElements.get(it+1);
-            	
-				 switch(currentOperator){
-		            case '+':
-		            	query.add(new BooleanClause(new TermQuery(new Term("text", term1)),BooleanClause.Occur.SHOULD));
-		            	query.add(new BooleanClause(new TermQuery(new Term("text", term2)),BooleanClause.Occur.SHOULD));
-			        	if (term1.charAt(0) == '!'){
-			        		query.add(new BooleanClause(new TermQuery(new Term("text", term1.substring(1))),BooleanClause.Occur.MUST_NOT));	
-			        	};
-					 	if (term2.charAt(0) == '!'){
-			        		query.add(new BooleanClause(new TermQuery(new Term("text", term2.substring(1))),BooleanClause.Occur.MUST_NOT));	
-					 	};
-		           	 	break;
-		            case '^': 
-		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term1)),BooleanClause.Occur.MUST));
-		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.MUST));
-			        	if (term1.charAt(0) == '!'){
-			        		query.add(new BooleanClause(new TermQuery(new Term("text", term1.substring(1))),BooleanClause.Occur.MUST_NOT));	
-			        	};
-					 	if (term2.charAt(0) == '!'){
-			        		query.add(new BooleanClause(new TermQuery(new Term("text", term2.substring(1))),BooleanClause.Occur.MUST_NOT));	
-					 	};
-				 } 
-				
-
-	        	it++;
-			 }
-	  		*/
 	  		 return main_query.build();	
 	  	}
 
@@ -268,31 +235,12 @@ public class SearchQuery {
 
 		 BooleanQuery b = createTermQuery(termElements,operatorElements,query);
 		 
-		 /*
-		 //Filter terms and boolean expressions
-		 for(String token : terms) {
-			
-			char currentChar = token.charAt(0);
-			char lastChar = token.charAt(token.length()-1);
-			if(currentChar == '^' || currentChar == '+') {
-				operatorElements.add(currentChar);
-			}else if(currentChar == '(') {
-				operatorElements.add(currentChar);
-				termElements.add(token.substring(1));
-			}else if(lastChar == ')') {
-				operatorElements.add(lastChar);
-				termElements.add(token.substring(0,token.length()-1));
-			}
-			 else {
-				termElements.add(token);
-			}
-		 }
+		 
 	
 		 //To match the size of the terms -> Indicates the end of the query
 
-		// System.out.println(termElements);
-		 BooleanQuery b = createTermQuery(termElements,operatorElements,query);
-		 */
+		 System.out.println(b);
+		
 	
 	
        return b;

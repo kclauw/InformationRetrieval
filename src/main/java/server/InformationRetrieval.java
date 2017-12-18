@@ -57,7 +57,7 @@ import query.SearchQuery;
 public class InformationRetrieval {
 	
 	
-	private static Directory directory;
+	public static Directory directory;
 	private static Analyzer analyzer;
 	private Index index;
 	
@@ -90,6 +90,16 @@ public class InformationRetrieval {
 
 	}
 	
+	public Directory getDirectory() {
+		return directory;
+	}
+	
+	
+	
+	public Analyzer getAnalyzer() {
+		return analyzer;
+	}
+	
 	public Set<String> getTermsInCollection() {
 		return termsInCollection;
 	}
@@ -106,95 +116,10 @@ public class InformationRetrieval {
 	    return tagValues;
 	}
 	
-	/**
-	 * This method calculates the TF-IDF score for each terms in the indexed
-	 * documents
-	 *
-	 * @param total retrieved documents
-	 * @return - Hashmap of TF-IDF score per each term in document 
-	 * @throws ParseException
-	 * @throws IOException 
-	 */
-	public static HashMap<Integer, HashMap<String, Double>> tfIdfScore(ScoreDoc[] hits) throws ParseException, IOException {
-		
-		
-		IndexReader reader = DirectoryReader.open(directory);
-		IndexSearcher searcher = new IndexSearcher(reader);
-
-		
-		
-		int totalDocuments = hits.length;
-		
-		HashMap<Integer, HashMap<String, Double>> documentMap = new HashMap<Integer, HashMap<String, Double>>();
-	
-        for(int i=0;i<totalDocuments;++i) {
-            int docId = hits[i].doc;
-            Document d = searcher.doc(docId);
-            HashMap<String, Double> termMap = new HashMap<String, Double>();
-       
-			TokenStream tokenStream =
-			TokenSources.getAnyTokenStream(reader, hits[i].doc,
-			"content", analyzer);
-            Terms termVector = reader.getTermVector(docId,"contents");
-            TermsEnum itr = termVector.iterator();
-            
-            System.out.println("DOCUMENT" + docId);
-            BytesRef term = null;
-            while((term = itr.next()) != null){
-            	
-                try{
-                	ClassicSimilarity simi = new ClassicSimilarity();
-	         
-
-                    Term termInstance = new Term("contents",term);
-                    termsInCollection.add(term.utf8ToString());
-                    
-                  //  System.out.println(term.utf8ToString());
-                    // TF-IDF calculations
-                    long tf = reader.totalTermFreq(termInstance);
-                    long docCount = reader.docFreq(termInstance);
-	                double idf = simi.idf(docCount, totalDocuments);
-	                
-	               
-	                termMap.put(term.utf8ToString().toString(), (tf * idf));
-	  
-                  //  System.out.println("term: "+term.utf8ToString()+", termFreq = "+tf+", docCount = "+docCount + " total document " + totalDocuments + "TF * IDF " + (tf * idf));
-                
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-            }  	
-            
-           // System.out.println(termMap);
-            
-            documentMap.put(docId, termMap);
-        }
-        
-        
-        
-        //Add 
-        for (Integer documentId : documentMap.keySet()) {
-        	
-		    for(String term : termsInCollection){ 
-		    	if(documentMap.get(documentId).get(term) == null) {
-		    		documentMap.get(documentId).put(term, 0.0);
-		    	}
-		    }
-        }
-
-        
-        System.out.println("-----------------");
-        System.out.println(termsInCollection.size());
-        reader.close();
-     
-	    return documentMap;
-	}
-
-
 	
 	public static void printResults(ScoreDoc[] hits) throws IOException, ParseException, InvalidTokenOffsetsException {
 		
-	
+		
 		IndexReader reader = DirectoryReader.open(directory);
 		IndexSearcher searcher = new IndexSearcher(reader);
 		
@@ -233,6 +158,9 @@ public class InformationRetrieval {
         System.out.println("-----------------");
         reader.close();
 	}
+	
+	
+
 	
 	public static ScoreDoc[] searchIndexQuery(String query,int hitsPerPage) throws CorruptIndexException, IOException {
 		bq = SearchQuery.createBooleanQuery(indexFile,query);

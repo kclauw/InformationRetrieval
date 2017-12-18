@@ -64,6 +64,7 @@ import index.Index;
 import junit.runner.Version;
 import token.PermutermFilter;
 import query.SearchQuery;
+import ranking.RankingEuclideanDistance;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -95,7 +96,7 @@ public class Main {
 
 		public int compare(DocumentDistancePair d1, DocumentDistancePair d2) {
 			// TODO Auto-generated method stub
-			 return (int) (d1.key - d2.key);
+			 return (int) (d2.key - d1.key);
 		}
 	};
 	
@@ -144,75 +145,17 @@ public class Main {
         //query = bufferedReader.readLine();
         //System.out.println("Retrieving documents containing : " + query.toLowerCase());
         
-        ScoreDoc[] hits = app.searchIndexQuery("*a",10);
-        //ScoreDoc[] hits = app.searchIndexQuery("parameter + (parameter ^ estimation)",10);
- 
+       // ScoreDoc[] hits = app.searchIndexQuery("*a",10);
+        //ScoreDoc[] hits = app.searchIndexQuery("(parameter + estimation) ^ (for ^ parameter)",10);
+        ScoreDoc[] hits = app.searchIndexQuery("*a ^ *b",10);
+        
         app.printResults(hits);
-
         
         
-        HashMap<Integer,HashMap<String, Double>> tdfIdfScores = app.tfIdfScore(hits);
-
+        RankingEuclideanDistance r = new RankingEuclideanDistance(hits,app);
         
-        
-    
-        PriorityQueue<DocumentDistancePair> rankingPriorityQueue = new PriorityQueue<DocumentDistancePair>(DocumentComparator);
-        
-
-        
-        
-        for(Integer docX: tdfIdfScores.keySet()) {
-        
-        	double min_distance = 500000.0;
-     		for(Integer docY:  tdfIdfScores.keySet()) {
-    			
-     			HashMap<String, Double> termMapX = tdfIdfScores.get(docX);
-    			HashMap<String, Double> termMapY = tdfIdfScores.get(docY);
-
-    	//		System.out.println(termMapY.values());
-    			
-    			ArrayList<Double> yVector = new ArrayList<Double>(termMapX.values());
-    			ArrayList<Double> xVector = new ArrayList<Double>(termMapY.values());
-    			
-    			
-    			if(docX != docY) {
-        	     	double distance = GetEuclideanDistance(xVector,yVector);
-        	     //	System.out.println(distance);
-        	     	if(distance < min_distance) {
-        	     		min_distance = distance;
-        	     	}
-        			
-        			
-        			
-    				
-    			}
-    			
-    		
-
-    		}
-     		
-     		System.out.println("Document " + docX + " "  + min_distance);
-			rankingPriorityQueue.add(new DocumentDistancePair(min_distance, docX));
-		       
-     		
-        
-   
-        }
-        
-        System.out.println("Selected documents");
-        int rankN = 5;
-        for(int i = 0; i <= rankN;i++) {
-        	DocumentDistancePair entry = rankingPriorityQueue.poll();
-        	System.out.println("Document : "+entry.key+ " " +entry.value );
-        	
-        }
-        //Create the terms
-        
-        //Create matrix of documents and terms 
-        
-        
-        
-        //
+        r.initializeHeap();
+        r.printBestDocuments(4);
         
         
     }
