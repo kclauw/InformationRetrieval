@@ -18,6 +18,8 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.search.ScoreDoc;
 
+import clustering.Kmeans;
+
 /***
  * 
  * 
@@ -54,8 +56,8 @@ public class Main {
 
 		app.printResults(results);
 
-		RankingEuclideanDistance euclidean = new RankingEuclideanDistance(results, app);
-		RankingCosine cosine = new RankingCosine(results, app);
+		//RankingEuclideanDistance euclidean = new RankingEuclideanDistance(results, app);
+		//RankingCosine cosine = new RankingCosine(results, app);
 
 		int n = results.length - 1;
 		/*
@@ -63,12 +65,15 @@ public class Main {
 		euclidean.initializeHeap();
 		euclidean.printBestDocuments(n);
 		*/
-		System.out.println("\n");
+		/*System.out.println("\n");
 		System.out.print("Rank the documents according to cosine distance");
 		cosine.initializeHeap();
 		cosine.printBestDocuments(n);
-		app.reader.close();
-
+		app.reader.close();*/
+		
+		Kmeans k = new Kmeans(app);
+		k.cluster(3, 5, 100);
+		System.out.println(k.clusters);
 	}
 
 }
