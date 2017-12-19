@@ -58,6 +58,7 @@
 		    <artifactId>lucene-analyzers-phonetic</artifactId>
 		    <version>6.1.0</version>
 		</dependency>
+
 		
 		<dependency>
   <groupId>junit</groupId>

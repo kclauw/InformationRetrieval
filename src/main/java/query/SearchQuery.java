@@ -81,6 +81,8 @@ public class SearchQuery {
 	  		 return query.build();	
 	  	}
 	 
+	 
+	 
 		public static void create_term_operator(String query,List<String> termElements,List<Character> operatorElements) {
 			 String[] terms = query.split(" ");
 			 int i = 0;
@@ -121,14 +123,11 @@ public class SearchQuery {
 		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
 	
 		  	
-		  	System.out.println(termElements);
-		  	System.out.println(operatorElements);
+
 		  	
 		  	List<BooleanQuery> processedTermElements = new ArrayList();
 		  	
 		  	//Loop over terms and transform elements to query
-		  	
-		  	
 		  	for(String term :termElements) {
 		  		
 		  		if(term.charAt(0) == '(') {
@@ -142,19 +141,20 @@ public class SearchQuery {
 		  		
 		  	}
 		  	
+		  	
+		  	//In the case of a single term
 		  	if(processedTermElements.size() == 1) {
 		  		
 		  		main_query.add(processedTermElements.get(0),BooleanClause.Occur.MUST);
 		  		return main_query.build();	
 		  	}
 		  	
-		  	System.out.println(processedTermElements);
 		  	
+		  	//In the case of multiple terms
 		  	int it = 0;
 		  	for(char currentOperator :operatorElements) {
 		  		switch(currentOperator){
 	            case '+':
-	            	//System.out.println("SHOULD" + term1 + " " + term2);
 	            	main_query.add(processedTermElements.get(it),BooleanClause.Occur.SHOULD);
 	            	main_query.add(processedTermElements.get(it+1),BooleanClause.Occur.SHOULD);
 	           	 	break;
@@ -179,21 +179,12 @@ public class SearchQuery {
 		
 
 	
-	public static BooleanQuery createBooleanQuery(Index indexFile,String query) {
+	public static BooleanQuery createBooleanQuery(String query) {
 		 List<String> termElements = new ArrayList<String>();
 		 List<Character> operatorElements = new ArrayList<Character>();
-	
-
 		 create_term_operator(query,termElements,operatorElements);
-		 
-	
-
 		 BooleanQuery b = createTermQuery(termElements,operatorElements,query);
-		 
-		 System.out.println(b);
-
-	
-      return b;
+		 return b;
 		}
 	
 

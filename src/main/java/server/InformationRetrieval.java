@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -17,40 +16,25 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.PostingsEnum;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
-import org.apache.lucene.search.similarities.BM25Similarity;
-import org.apache.lucene.search.similarities.ClassicSimilarity;
-import org.apache.lucene.search.similarities.Similarity;
-import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
 import org.apache.tika.exception.TikaException;
 import org.xml.sax.SAXException;
 
+
 import analyzer.SoundexAnalyzer;
-import config.Config;
 import index.Index;
 import query.SearchQuery;
 
@@ -61,7 +45,7 @@ public class InformationRetrieval {
 	private static Analyzer analyzer;
 	private Index index;
 	
-	private static ScoreDoc[] hits;
+	
 	private static BooleanQuery bq;
 	
 	private static IndexReader reader;
@@ -72,7 +56,6 @@ public class InformationRetrieval {
 	private HashMap<Integer, HashMap> tfIdfScore;
 	private static Set<String> termsInCollection = new TreeSet<String>();
 	
-
 	
 	
 	static Index indexFile;
@@ -122,8 +105,7 @@ public class InformationRetrieval {
 		
 		IndexReader reader = DirectoryReader.open(directory);
 		IndexSearcher searcher = new IndexSearcher(reader);
-		
-		//Part of highlighter
+
 		SimpleHTMLFormatter simpleHTMLFormatter = new
 				SimpleHTMLFormatter("<term>", "</term>");
 				SimpleHTMLEncoder simpleHTMLEncoder = new SimpleHTMLEncoder();
@@ -132,15 +114,15 @@ public class InformationRetrieval {
 			
         System.out.println("-----------------");
         for(int i=0;i<hits.length;++i) {
-            int docId = hits[i].doc;
+        	int docId = hits[i].doc;
             Document d = searcher.doc(docId);
             String text = d.get("content");
    
             System.out.println((i + 1) + ". " + d.get("file"));
            
 			TokenStream tokenStream =
-			TokenSources.getAnyTokenStream(reader, hits[i].doc,
-			"content", analyzer);
+					TokenSources.getAnyTokenStream(reader, hits[i].doc,
+							"content", analyzer);
 					
             String[] frags = highlighter.getBestFragments(tokenStream, text, 10);
             for (String frag : frags)
@@ -151,19 +133,15 @@ public class InformationRetrieval {
           
             System.out.println("\n");
     
-        }
-        
-
-        
+        } 
         System.out.println("-----------------");
         reader.close();
 	}
 	
 	
 
-	
 	public static ScoreDoc[] searchIndexQuery(String query,int hitsPerPage) throws CorruptIndexException, IOException {
-		bq = SearchQuery.createBooleanQuery(indexFile,query);
+		bq = SearchQuery.createBooleanQuery(query);
 
         IndexReader reader = DirectoryReader.open(directory);
         IndexSearcher searcher = new IndexSearcher(reader);
