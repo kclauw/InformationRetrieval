@@ -115,7 +115,7 @@ public class Index {
 		
 		writer.commit();
 		//writer.deleteUnusedFiles();
-		System.out.println(writer.maxDoc() + " documents written");
+		//System.out.println(writer.maxDoc() + " documents written");
 	}
 	
 

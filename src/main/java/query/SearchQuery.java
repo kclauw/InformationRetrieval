@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.Encoder;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.language.Soundex;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -35,9 +38,12 @@ import index.Index;
 public class SearchQuery {
 	
 	
-	 public static BooleanQuery add_term(String term) {
+	 public static BooleanQuery add_term(String term) throws EncoderException {
 		BooleanQuery.Builder query = new BooleanQuery.Builder();
+	
+  		
     	if (term.charAt(0) == '!'){
+    	
    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term.substring(1))),BooleanClause.Occur.MUST_NOT));	
    	}else{
    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term)),BooleanClause.Occur.MUST));
@@ -116,7 +122,7 @@ public class SearchQuery {
 		
 
 	
-	 static BooleanQuery createTermQuery(List<String> termElements,List<Character> operatorElements,String q) {
+	 static BooleanQuery createTermQuery(List<String> termElements,List<Character> operatorElements,String q) throws EncoderException {
 
 	
 		  	BooleanQuery.Builder main_query = new BooleanQuery.Builder();
@@ -126,9 +132,11 @@ public class SearchQuery {
 
 		  	
 		  	List<BooleanQuery> processedTermElements = new ArrayList();
-		  	
+
 		  	//Loop over terms and transform elements to query
 		  	for(String term :termElements) {
+	  			
+	 
 		  		
 		  		if(term.charAt(0) == '(') {
 		  			term = term.substring(1);
@@ -140,10 +148,12 @@ public class SearchQuery {
 		  		}
 		  		
 		  	}
-		  	
-		  	
+			
+
+			
 		  	//In the case of a single term
 		  	if(processedTermElements.size() == 1) {
+		  		//String encoded = encoder.encode(processedTermElements.get(0).clauses()).toString();
 		  		
 		  		main_query.add(processedTermElements.get(0),BooleanClause.Occur.MUST);
 		  		return main_query.build();	
@@ -179,7 +189,7 @@ public class SearchQuery {
 		
 
 	
-	public static BooleanQuery createBooleanQuery(String query) {
+	public static BooleanQuery createBooleanQuery(String query) throws EncoderException {
 		 List<String> termElements = new ArrayList<String>();
 		 List<Character> operatorElements = new ArrayList<Character>();
 		 create_term_operator(query,termElements,operatorElements);
