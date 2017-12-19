@@ -93,17 +93,17 @@ public class Kmeans {
 			for (int cent: newCentroids.keySet()) {
 				diff = euclidean(centroids.get(cent), newCentroids.get(cent));
 				i++;
-				System.out.print("Iter in cent diff: ");
-				System.out.println(i);
+				//System.out.print("Iter in cent diff: ");
+				//System.out.println(i);
 				if (!go && diff > thresh) {
-					System.out.print("cent diff: ");
-					System.out.println(diff);
+					//System.out.print("cent diff: ");
+					//System.out.println(diff);
 					go = true;
 				}
 			}
 			if (++iter >= maxiter) go = false;
 			centroids = newCentroids;
-			System.out.println(iter);
+			//System.out.println(iter);
 		}
 	}
 
@@ -190,6 +190,15 @@ public class Kmeans {
 
 		// return (float) Math.log(1 + (docCount - docFreq)/(docFreq));
 		return (float) Math.log(1 + (docCount - docFreq + 0.5D) / (docFreq + 0.5D));
+	}
+	
+	public static ArrayList<Integer> getCluster(int docId){
+		ArrayList<Integer> result = null;
+		for (int c : clusters.keySet()) {
+			if (clusters.get(c).contains(docId))
+				result = clusters.get(c);
+		}
+		return result;
 	}
 
 

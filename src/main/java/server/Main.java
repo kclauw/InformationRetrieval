@@ -73,7 +73,12 @@ public class Main {
 		
 		Kmeans k = new Kmeans(app);
 		k.cluster(3, 5, 100);
-		System.out.println(k.clusters);
+		for (ScoreDoc c : results) {
+			System.out.print("Cluster for document ");
+			System.out.print(c.doc);
+			System.out.print(": ");
+			System.out.println(k.getCluster(c.doc));
+		}
 	}
 
 }
