@@ -66,8 +66,7 @@ public class RankingCosine  extends Ranking{
         }
     
         double cosineSimilarity =  dot_product_total/length_product;  
-               
-        return Math.sqrt((double)cosineSimilarity);
+        return (double)cosineSimilarity;
         
     }
 	
