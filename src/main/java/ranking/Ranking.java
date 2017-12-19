@@ -49,7 +49,6 @@ public abstract class Ranking {
 		this.hits = hits;
 	}
 
-
     
     public static class DocumentDistancePair {
         private double key;
@@ -59,8 +58,6 @@ public abstract class Ranking {
             this.key = min_distance;
             this.value = value;
         }
-
-        // Constructors, getters etc.
     }
     
 	public static Comparator<DocumentDistancePair> DocumentComparator = new Comparator<DocumentDistancePair>(){
@@ -73,13 +70,7 @@ public abstract class Ranking {
 		}
 	};
 	
-	
 
-	
-	
-	
-	
-	
     public static float idf(long docFreq, long docCount) {
     	
         return (float) Math.log(1 + (docCount - docFreq)/(docFreq));
@@ -113,20 +104,16 @@ public HashMap<Integer, HashMap<String, Double>> getTFIdfScores() throws IOExcep
             	
                 try{
                 	ClassicSimilarity simi = new ClassicSimilarity();
-                	BM25Similarity simi2 = new BM25Similarity();
+     //           	BM25Similarity simi2 = new BM25Similarity();
                     Term termInstance = new Term("contents",term);
                     termsInCollection.add(term.utf8ToString());
                     // TF-IDF calculations
                     long tf = reader.totalTermFreq(termInstance);
                     long docCount = reader.docFreq(termInstance);
-                    
-	                double idf_value = idf(docCount, totalDocuments);
-	               // System.out.println("IIIDF" + simi.idf(docCount+1, totalDocuments));
+
 	                double idf = simi.idf(docCount, totalDocuments);
-	            
-	               // System.out.println("tf : " + tf);
-	               // System.out.println("DocCount " + docCount + "idf : " + idf_value);
-	                termMap.put(term.utf8ToString().toString(), (tf * (idf+1)));
+
+	                termMap.put(term.utf8ToString().toString(), ((tf + 1) * idf));
 	  
                 }catch(Exception e){
                     System.out.println(e);
