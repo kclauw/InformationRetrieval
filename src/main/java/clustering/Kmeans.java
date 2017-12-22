@@ -35,7 +35,6 @@ public class Kmeans {
 		boolean go = true;
 		int iter=0;
 		HashMap<Integer, HashMap<String, Double>> centroids = randomAssign(tfIdfs, k);
-		
 
 		while (go) {
 			clusters = new HashMap <Integer, ArrayList<Integer>>();

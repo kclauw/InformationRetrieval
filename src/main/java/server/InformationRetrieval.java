@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -38,6 +37,10 @@ import analyzer.SoundexAnalyzer;
 import index.Index;
 import query.SearchQuery;
 
+/**
+ * this is the main class of out project. All the pre-indexing is done here
+ *
+ */
 public class InformationRetrieval {
 
 	public static Directory directory;
@@ -50,7 +53,6 @@ public class InformationRetrieval {
 	public static IndexSearcher searcher;
 
 	// Ranking statistics
-	private HashMap<Integer, HashMap> tfIdfScore;
 	private static Set<String> termsInCollection = new TreeSet<String>();
 
 	static Index indexFile;
@@ -90,6 +92,13 @@ public class InformationRetrieval {
 		return tagValues;
 	}
 
+	/**
+	 * pretty print for the results
+	 * @param hits
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws InvalidTokenOffsetsException
+	 */
 	public static void printResults(ScoreDoc[] hits) throws IOException, ParseException, InvalidTokenOffsetsException {
 
 		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<term>", "</term>");

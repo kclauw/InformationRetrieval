@@ -3,29 +3,16 @@ package index;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StoredField;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -36,10 +23,6 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.apache.lucene.document.Field;
-
-import analyzer.SoundexAnalyzer;
-import config.Config;
-import query.SearchQuery;
 
 public class Index {
 	
@@ -56,6 +39,14 @@ public class Index {
 	
 	
 	
+	/**
+	 * Indexes all files in a directory
+	 * @param dataDirectory
+	 * @param indexDirectory
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws TikaException
+	 */
 	public static void createIndex(String dataDirectory,String indexDirectory) throws IOException, SAXException, TikaException {
     
 		File documents = new File(dataDirectory);
@@ -114,6 +105,7 @@ public class Index {
 		
 		
 		writer.commit();
+		writer.close();
 		//writer.deleteUnusedFiles();
 		//System.out.println(writer.maxDoc() + " documents written");
 	}

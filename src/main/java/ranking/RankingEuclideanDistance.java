@@ -13,38 +13,34 @@ public class RankingEuclideanDistance extends Ranking {
 
 	public RankingEuclideanDistance(ScoreDoc[] hits, InformationRetrieval app) {
 		super(hits, app);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * This method calculates the TF-IDF score for each terms in the indexed
-	 * documents
+	 * This method calculates the Euclidean distance between two files
 	 *
-	 * @param total
-	 *            retrieved documents
-	 * @return - Hashmap of TF-IDF score per each term in document
+	 * @param file1
+	 *        file2  
+	 * @return - double: the distance
 	 * @throws ParseException
 	 * @throws IOException
 	 */
 
-	private static double GetEuclideanDistance(List<Double> collection, List<Double> collection2) {
+	private static double GetEuclideanDistance(List<Double> file1, List<Double> file2) {
 		double diff_square_sum = 0.0;
 
-		for (int i = 0; i < collection.size(); i++) {
+		for (int i = 0; i < file1.size(); i++) {
 
-			double x = collection.get(i).doubleValue();
-			double y = collection2.get(i).doubleValue();
+			double x = file1.get(i).doubleValue();
+			double y = file2.get(i).doubleValue();
 			diff_square_sum = diff_square_sum + (x - y) * (x - y);
 		}
 
-		// diff_square_sum = (collection - collection2) * (collection - collection2);
 		return Math.sqrt((double) diff_square_sum);
 	}
 
 	public void initializeHeap() throws ParseException, IOException {
 
 		tdfIdfScores = getTFIdfScores();
-		// System.out.println(tdfIdfScores);
 		rankingPriorityQueue = new PriorityQueue<DocumentDistancePair>(1,DocumentComparatorMin);
 
 		for (Integer docX : tdfIdfScores.keySet()) {
@@ -68,7 +64,6 @@ public class RankingEuclideanDistance extends Ranking {
 
 			}
 
-			// System.out.println("Document " + docX + " " + min_distance);
 			rankingPriorityQueue.add(new DocumentDistancePair(min_distance, docX));
 
 		}

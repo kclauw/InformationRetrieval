@@ -1,39 +1,13 @@
 package query;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.codec.Encoder;
 import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.language.Soundex;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BooleanQuery.Builder;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.WildcardQuery;
-import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.search.highlight.QueryScorer;
-import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
-import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-
-import index.Index;
 
 public class SearchQuery {
 	
@@ -126,12 +100,8 @@ public class SearchQuery {
 
 	
 		  	BooleanQuery.Builder main_query = new BooleanQuery.Builder();
-		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
-	
 		  	
-
-		  	
-		  	List<BooleanQuery> processedTermElements = new ArrayList();
+		  	List<BooleanQuery> processedTermElements = new ArrayList<BooleanQuery>();
 
 		  	//Loop over terms and transform elements to query
 		  	for(String term :termElements) {
