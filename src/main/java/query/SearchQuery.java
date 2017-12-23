@@ -17,7 +17,6 @@ public class SearchQuery {
 	
   		
     	if (term.charAt(0) == '!'){
-    	System.out.println(term.substring(1));
    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term.substring(1))),BooleanClause.Occur.MUST_NOT));	
    	}else{
    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term)),BooleanClause.Occur.MUST));
@@ -49,8 +48,8 @@ public class SearchQuery {
 		            	query.add(add_term(term2),BooleanClause.Occur.SHOULD);
 		           	 break;
 		            case '^': 
-		            	query.add(add_term(term1),BooleanClause.Occur.SHOULD);
-		            	query.add(add_term(term2),BooleanClause.Occur.SHOULD);
+		            	query.add(add_term(term1),BooleanClause.Occur.MUST);
+		            	query.add(add_term(term2),BooleanClause.Occur.MUST);
 
 		            	break;
 		            default :
@@ -101,9 +100,7 @@ public class SearchQuery {
 
 	
 		  	BooleanQuery.Builder main_query = new BooleanQuery.Builder();
-		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
-	
-		  	
+		 
 
 		  	
 		  	List<BooleanQuery> processedTermElements = new ArrayList();
@@ -118,7 +115,7 @@ public class SearchQuery {
 	       		    BooleanQuery bracketQuery = proccessTermsBetweenBracket(term);
 	       		    processedTermElements.add(bracketQuery);
 		  		}else {
-		  			System.out.println("Single Query");
+
 		  			BooleanQuery singleQuery = add_term(term);
 		  			processedTermElements.add(singleQuery);
 		  		}
