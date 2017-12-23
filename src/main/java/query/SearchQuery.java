@@ -17,7 +17,7 @@ public class SearchQuery {
 	
   		
     	if (term.charAt(0) == '!'){
-    	
+    	System.out.println(term.substring(1));
    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term.substring(1))),BooleanClause.Occur.MUST_NOT));	
    	}else{
    		query.add(new BooleanClause(new WildcardQuery(new Term("text", term)),BooleanClause.Occur.MUST));
@@ -26,7 +26,7 @@ public class SearchQuery {
 	 }
 	 
 
-	 static BooleanQuery proccessTermsBetweenBracket(String term){
+	 static BooleanQuery proccessTermsBetweenBracket(String term) throws EncoderException{
 
 		 
 		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
@@ -45,15 +45,16 @@ public class SearchQuery {
 
 				 switch(currentOperator){
 		            case '+':
-		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term1)),BooleanClause.Occur.SHOULD));
-		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.SHOULD));
-		           	 	break;
+		            	query.add(add_term(term1),BooleanClause.Occur.SHOULD);
+		            	query.add(add_term(term2),BooleanClause.Occur.SHOULD);
+		           	 break;
 		            case '^': 
-		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term1)),BooleanClause.Occur.MUST));
-		            	query.add(new BooleanClause(new WildcardQuery(new Term("text", term2)),BooleanClause.Occur.MUST));
+		            	query.add(add_term(term1),BooleanClause.Occur.SHOULD);
+		            	query.add(add_term(term2),BooleanClause.Occur.SHOULD);
+
 		            	break;
 		            default :
-		            	//add_term(query,term1);
+		            	
 		            	break;
 				 } 
 	        	it++;
@@ -100,8 +101,12 @@ public class SearchQuery {
 
 	
 		  	BooleanQuery.Builder main_query = new BooleanQuery.Builder();
+		  	BooleanQuery.Builder query = new BooleanQuery.Builder();
+	
 		  	
-		  	List<BooleanQuery> processedTermElements = new ArrayList<BooleanQuery>();
+
+		  	
+		  	List<BooleanQuery> processedTermElements = new ArrayList();
 
 		  	//Loop over terms and transform elements to query
 		  	for(String term :termElements) {
@@ -113,6 +118,7 @@ public class SearchQuery {
 	       		    BooleanQuery bracketQuery = proccessTermsBetweenBracket(term);
 	       		    processedTermElements.add(bracketQuery);
 		  		}else {
+		  			System.out.println("Single Query");
 		  			BooleanQuery singleQuery = add_term(term);
 		  			processedTermElements.add(singleQuery);
 		  		}
@@ -166,9 +172,6 @@ public class SearchQuery {
 		 BooleanQuery b = createTermQuery(termElements,operatorElements,query);
 		 return b;
 		}
-	
-
-	
 	
 
 }
